@@ -1,0 +1,228 @@
+{
+	"info": {
+		"_postman_id": "85039792-4a33-42b0-91df-366a24f6cebf",
+		"name": "Salesforce OAuth 2.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1056816"
+	},
+	"item": [
+		{
+			"name": "1. Authorize by Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://oauth.pstmn.io/v1/callback",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.salesforce.com/services/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"salesforce",
+						"com"
+					],
+					"path": [
+						"services",
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Fetch Latest Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `",
+							"<style type=\"text/css\">",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+							"    .tftable tr {background-color:#ffffff;}",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+							"    .tftable tr:hover {background-color:#e0ffff;}",
+							"</style>",
+							"",
+							"<table class=\"tftable\" border=\"1\">",
+							"    <tr>",
+							"        <th>Id</th>",
+							"        <th>Name</th>",
+							"    </tr>",
+							"    ",
+							"    {{#each response.records}}",
+							"        <tr>",
+							"            <td>{{Id}}</td>",
+							"            <td>{{Name}}</td>",
+							"        </tr>",
+							"    {{/each}}",
+							"</table>",
+							"`;",
+							"",
+							"function constructVisualizerPayload() {",
+							"    var res = pm.response.json();",
+							"    return { response: res };",
+							"}",
+							"",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://fexleservicesprivatelimit86-dev-ed.develop.my.salesforce.com/services/data/v52.0/query/?q=SELECT+Id,Name+FROM+Account+LIMIT+10",
+					"protocol": "https",
+					"host": [
+						"fexleservicesprivatelimit86-dev-ed",
+						"develop",
+						"my",
+						"salesforce",
+						"com"
+					],
+					"path": [
+						"services",
+						"data",
+						"v52.0",
+						"query",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "SELECT+Id,Name+FROM+Account+LIMIT+10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Composite Request for Contact",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"allOrNone\": true,\r\n    \"compositeRequest\": [\r\n        {\r\n            \"method\": \"PATCH\",\r\n            \"referenceId\": \"account1\",\r\n            \"url\": \"/services/data/v46.0/sobjects/Account/ERP_Account_Number__c/24726487284\",\r\n            \"body\": {\r\n                \"Name\": \"Hogwarts Inc\",\r\n                \"Website\": \"https://hogwarts.com\"\r\n            }\r\n        },\r\n        {\r\n            \"method\": \"PATCH\",\r\n            \"referenceId\": \"contact1\",\r\n            \"url\": \"/services/data/v46.0/sobjects/Contact/ERP_Contact_Number__c/24726487284-1001\",\r\n            \"body\": {\r\n                \"FirstName\": \"Harry\",\r\n                \"LastName\": \"Potter\",\r\n                \"Email\": \"harry.potter@hogwarts.com\",\r\n                \"Phone\": \"2568741524\",\r\n                \"AccountId\": \"@{account1.id}\"\r\n            }\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://fexleservicesprivatelimit86-dev-ed.develop.my.salesforce.com/services/data/v56.0/composite/",
+					"protocol": "https",
+					"host": [
+						"fexleservicesprivatelimit86-dev-ed",
+						"develop",
+						"my",
+						"salesforce",
+						"com"
+					],
+					"path": [
+						"services",
+						"data",
+						"v56.0",
+						"composite",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Authorize by Refresh Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.salesforce.com/services/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"salesforce",
+						"com"
+					],
+					"path": [
+						"services",
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
